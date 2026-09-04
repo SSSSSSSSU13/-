@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        background: deepskyblue;
+        font-family: sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        color: gold;
+        font-size: 24px;
+        margin-top: 20px;
+      }
+      #subtitle {
+        color: gold;
+        font-size: 18px;
+        margin: 15px 0;
+      }
+      #content {
+        color: gold;
+        font-size: 16px;
+        margin: 20px auto;
+        max-width: 90%;
+        line-height: 1.5;
+      }
+      #com {
+        color: gold;
+        font-size: 16px;
+        margin: 20px auto;
+        max-width: 90%;
+        line-height: 1.5;
+      }
+      #pha {
+        margin: 20px auto;
+        max-width: 90%;
+        display: flex;
+        justify-content: center;
+      }
+      table {
+        border-collapse: collapse;
+        background-color: white;
+        margin: 0 auto;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      th, td {
+        border: 1px solid #ccc;
+        padding: 8px 16px;
+        font-size: 14px;
+        color: #333;
+      }
+      th {
+        background-color: gold;
+      }
+      .button-container {
+        margin-top: 30px;
+      }
+      button {
+        background-color: gold;
+        border: none;
+        padding: 12px 24px;
+        margin: 8px 0;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        width: 80%;
+        max-width: 300px;
+      }
+      button:hover {
+        background-color: orange;
+      }
+      .hidden {
+        display: none;
+      }
+
+      /* 宇宙回避ゲーム用のスタイル */
+      #rocket-sim-container {
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        padding: 20px;
+        margin: 0 auto;
+        max-width: 400px;
+      }
+      #sky-view {
+        width: 100%;
+        height: 300px;
+        background: #000511;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 15px;
+        border: 2px solid gold;
+      }
+      #rocket {
+        font-size: 30px;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+      }
+      .obstacle {
+        position: absolute;
+        font-size: 24px;
+        top: -30px;
+      }
+      #status-board {
+        color: white;
+        font-size: 14px;
+        margin-bottom: 15px;
+        background: rgba(0,0,0,0.6);
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .controls {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .controls button {
+        width: 45%;
+        margin: 0;
+        padding: 10px;
+      }
+    </style>
+    <title>Pen</title>
+  </head>
+  <body>
+    <h1>Аюдың дүрбелеңі (熊隈パニック)</h1>
+    <div id="subtitle">説明</div>
+    <div id="content"></div>
+    <div id="pha"></div>
+    <div id="com"></div>
+
+    <div class="button-container">
+      <div id="main-buttons">
+        <button onclick="rea()">熊をたたく理由</button><br>
+        <button onclick="rule()">ルール</button><br>
+        <button onclick="game()">カザフスタン暇つぶしゲーム</button>
+      </div>
+      <div id="back-container" class="hidden">
+        <button onclick="goBack()">もどる</button>
+      </div>
+    </div>
+
+    <script>
+      let page = 0;
+
+      // ゲーム用の変数
+      let gameInterval = null;
+      let isPlaying = false;
+      let rocketX = 50; // パーセンテージ (%)
+      let score = 0;
+      let obstacles = [];
+
+      function updateView() {
+        const subtitle = document.getElementById("subtitle");
+        const content = document.getElementById("content");
+        const mainButtons = document.getElementById("main-buttons");
+        const backContainer = document.getElementById("back-container");
+        const list = document.getElementById("pha");
+        const modez = ["簡単", "普通", "難しめ", "鬼畜"];
+        const modex = ["ゆっくり「熊」が動く", "MOIS生が適切だと思うスピードで「熊」が動く", "少し早めに「熊」が動く", "ひっかけなどを入れながらものすごく意地悪なスピードで「熊」が動く"];
+        const modey = ["5~15","1~15","0~10","-100~20"]
+        const modea = ["小学生以下","中学生、高校生","自信のある方","自信を砕かれたい方"]
+        const com = document.getElementById("com");
+
+        if (page !== 3 && gameInterval) {
+          clearInterval(gameInterval);
+          gameInterval = null;
+          isPlaying = false;
+        }
+
+        list.innerHTML = "";
+        com.textContent = "";
+
+        if (page === 1) {
+          subtitle.textContent = "熊をたたく理由";
+          content.textContent = "このゲームで熊をたたく理由は、カザフスタンにはヒグマが多く生息していて生態系において重要な位置を占めている。国内には主に一般的なユーラシアヒグマと、南東部の天山山脈に生息する希少なテンシャンヒグマの2系統が確認されており、前者は森林やタイガを中心に生息し、後者は高山地帯に適応した亜種として国のレッドデータブックに登録されている。人間社会との関係においては、近年、生息域の拡大や環境変化に伴う接近が顕著となっている。特に経済の中心地である最大都市アルマトイ近郊の山岳地帯は、保養地やハイキングコースとクマの生息域が重なっているため、登山客との遭遇事故や、餌を求めて人里やリゾート施設周辺に出没する事例が度々報告されている。そのため、「熊」をたたくゲームを実施した。その一方で政府は保護区の設置やモニタリングを通じて個体数管理を行っているが、住民の安全確保と生態系保全の両立が継続的な課題となっている。文化・歴史的には、かつては毛皮などを目的とした狩猟の対象とされることもあったが、現在は野生動物保護の法整備が進み、厳格な規制のもとで管理されている。総じて、カザフスタンにおける熊は、豊かな自然の象徴であると同時に、都市化や観光開発の進展に伴い、人間と野生動物との共生を考える上で重要な存在となっている。";
+        } else if (page === 2) {
+          subtitle.textContent = "ルール説明";
+          content.textContent = "熊隈パニックは段ボールの箱の穴から出てくる「熊」をピコピコハンマーでたたくことで点を稼ぐゲームである。「熊」の種類によって取得できる点数が変わってくるので即座に判断して適切な「熊」をたたく必要がある。反射神経と速攻判断力が試されるゲームである。またゲームモードによってゲームの難易度を変えることができる。";
+          
+          let tableHtml = "<table><tr><th>ゲームモード</th><th>説明</th><th>得点</th><th>対象</th></tr>";
+          for (let i = 0; i < modez.length; i++) {
+            tableHtml += `<tr><td>${modez[i]}</td><td>${modex[i]}</td><td>${modey[i]}</td><td>${modea[i]}</td></tr>`;
+            com.textContent = "※18歳以上は自動的に「鬼畜」モードになります。"
+          }
+          tableHtml += "</table>";
+          list.innerHTML = tableHtml;
+
+        } else if (page === 3) {
+          subtitle.textContent = "カザフスタン暇つぶしゲーム";
+          content.textContent = "バイコヌール宇宙基地から発進！宇宙空間で隕石をよけてスコアを稼ごう！";
+          
+          list.innerHTML = `
+            <div id="rocket-sim-container">
+              <div id="status-board">スコア: 0</div>
+              <div id="sky-view">
+                <div id="rocket">🚀</div>
+              </div>
+              <div class="controls">
+                <button onclick="moveRocket(-10)">◀ 左移動</button>
+                <button onclick="moveRocket(10)">右移動 ▶</button>
+              </div>
+              <button onclick="startGame()" id="launch-btn">ゲームスタート</button>
+            </div>
+          `;
+        } else {
+          subtitle.textContent = "説明";
+          content.textContent = "";
+          com.textContent = "";
+        }
+
+        if (page >= 1) {
+          mainButtons.classList.add("hidden");
+          backContainer.classList.remove("hidden");
+        } else {
+          mainButtons.classList.remove("hidden");
+          backContainer.classList.add("hidden");
+        }
+      }
+
+      function moveRocket(direction) {
+        if (!isPlaying) return;
+        rocketX += direction;
+        if (rocketX < 5) rocketX = 5;
+        if (rocketX > 95) rocketX = 95;
+        const rocket = document.getElementById("rocket");
+        if (rocket) {
+          rocket.style.left = rocketX + "%";
+        }
+      }
+
+      function startGame() {
+        if (isPlaying) return;
+        isPlaying = true;
+        score = 0;
+        rocketX = 50;
+        obstacles = [];
+
+        const launchBtn = document.getElementById("launch-btn");
+        const skyView = document.getElementById("sky-view");
+        const statusBoard = document.getElementById("status-board");
+        const rocket = document.getElementById("rocket");
+
+        if (launchBtn) launchBtn.disabled = true;
+        if (rocket) rocket.style.left = rocketX + "%";
+
+        // 古い障害物を削除
+        document.querySelectorAll(".obstacle").forEach(el => el.remove());
+
+        let frameCount = 0;
+        gameInterval = setInterval(() => {
+          frameCount++;
+          score += 10;
+          statusBoard.textContent = `スコア: ${score}`;
+
+          // 一定間隔で隕石を生成
+          if (frameCount % 15 === 0) {
+            const obs = document.createElement("div");
+            obs.className = "obstacle";
+            obs.textContent = "☄️";
+            const randomX = Math.floor(Math.random() * 85) + 5;
+            obs.style.left = randomX + "%";
+            obs.style.top = "-30px";
+            skyView.appendChild(obs);
+            obstacles.push({ element: obs, x: randomX, y: -30 });
+          }
+
+          // 障害物を移動させる
+          for (let i = obstacles.length - 1; i >= 0; i--) {
+            let o = obstacles[i];
+            o.y += 6;
+            o.element.style.top = o.y + "px";
+
+            // 衝突判定 (ロケットの位置: y = 250px あたり)
+            if (o.y > 230 && o.y < 270) {
+              if (Math.abs(o.x - rocketX) < 8) {
+                // ゲームオーバー
+                clearInterval(gameInterval);
+                gameInterval = null;
+                isPlaying = false;
+                statusBoard.textContent = `💥 隕石に衝突！ 最終スコア: ${score}`;
+                if (launchBtn) {
+                  launchBtn.disabled = false;
+                  launchBtn.textContent = "もう一度プレイ";
+                }
+                return;
+              }
+            }
+
+            // 画面外に出たら削除
+            if (o.y > 310) {
+              o.element.remove();
+              obstacles.splice(i, 1);
+            }
+          }
+        }, 50);
+      }
+
+      function rea() {
+        page = 1;
+        updateView();
+      }
+      function rule() {
+        page = 2;
+        updateView();
+      }
+      function game() {
+        page = 3;
+        updateView();
+      }
+      function goBack() {
+        page = 0;
+        updateView();
+      }
+    </script>
+  </body>
+</html>
