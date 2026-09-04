@@ -129,7 +129,7 @@
         padding: 10px;
       }
     </style>
-    <title>Pen</title>
+    <title>Kazakhstan</title>
   </head>
   <body>
     <h1>Аюдың дүрбелеңі (熊隈パニック)</h1>
@@ -165,9 +165,9 @@
         const mainButtons = document.getElementById("main-buttons");
         const backContainer = document.getElementById("back-container");
         const list = document.getElementById("pha");
-        const modez = ["簡単", "普通", "難しめ", "鬼畜"];
+        const modez = ["簡単", "普通", "難しめ", "情け無用"];
         const modex = ["ゆっくり「熊」が動く", "MOIS生が適切だと思うスピードで「熊」が動く", "少し早めに「熊」が動く", "ひっかけなどを入れながらものすごく意地悪なスピードで「熊」が動く"];
-        const modey = ["5~15","1~15","0~10","-100~20"]
+        const modey = ["-1~15","-1~15","-1~10","-20~20"]
         const modea = ["小学生以下","中学生、高校生","自信のある方","自信を砕かれたい方"]
         const com = document.getElementById("com");
 
@@ -190,7 +190,7 @@
           let tableHtml = "<table><tr><th>ゲームモード</th><th>説明</th><th>得点</th><th>対象</th></tr>";
           for (let i = 0; i < modez.length; i++) {
             tableHtml += `<tr><td>${modez[i]}</td><td>${modex[i]}</td><td>${modey[i]}</td><td>${modea[i]}</td></tr>`;
-            com.textContent = "※18歳以上は自動的に「鬼畜」モードになります。"
+            com.textContent = "※18歳以上は自動的に「情け無用」モードになります。"
           }
           tableHtml += "</table>";
           list.innerHTML = tableHtml;
@@ -287,7 +287,7 @@
                 clearInterval(gameInterval);
                 gameInterval = null;
                 isPlaying = false;
-                statusBoard.textContent = `💥 隕石に衝突！ 最終スコア: ${score}`;
+                statusBoard.textContent = `隕石に衝突！ 最終スコア: ${score}`;
                 if (launchBtn) {
                   launchBtn.disabled = false;
                   launchBtn.textContent = "もう一度プレイ";
